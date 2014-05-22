@@ -15,3 +15,4 @@ based on the algorithm used by https://github.com/samwho/scrabble-solver
 Copyright &copy; 2014 Cody Barr. See LICENSE.md for
 further details.
 
+
