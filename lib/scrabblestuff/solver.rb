@@ -3,7 +3,7 @@ module Scrabble
     # The name of the file to use as a word dictionary. This file can be any
     # file that contains a list of words, one word per line.
     # @word_file_name = File.dirname(__FILE__) + "/../../assets/words.txt"
-    @word_file_name = File.realpath("assets/wwf.txt")
+    @word_file_name = File.dirname(__FILE__) + '/../../assets/wwf.txt'
 
     # Reads in the words.txt file and returns an array containing all of the words
     # in that file.
