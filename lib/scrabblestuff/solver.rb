@@ -1,39 +1,45 @@
+# trie.rb
+# from https://gist.github.com/Sirupsen/6481936
 module Scrabble
   class Solver
-    # The name of the file to use as a word dictionary. This file can be any
-    # file that contains a list of words, one word per line.
-    # @word_file_name = File.dirname(__FILE__) + "/../../assets/words.txt"
-    attr_accessor :words, :trie
-
-    # Reads in the words.txt file and returns an array containing all of the words
-    # in that file.
-    #
-    # Used by other methods
-
+    attr_accessor :word, :nodes, :used, :all
+   
     def initialize
-      word_file_name = File.dirname(__FILE__) + '/../../assets/wwf.txt'
-      @words = File.read(word_file_name).split("\n").map(&:downcase)
-      @trie = Scrabble::Trie.new
-
-      @words.each do |word|
-        @trie << word.chomp
-      end
+      @word, @nodes = false, {}
     end
 
-    # Gets an array of words that would fit the current board of Scrabble
-    # tiles.
-    #
-    # Example:
-    #
-    #   Scrabble::Solver.words_for "there"
-    #   # => An array of words that the tiles t, h, e, r, e could make.
-    #
-    #   Scrabble::Solver.words_for "there?"
-    #   # => An array of words that the tiles t, h, e, r, e plus a blank tile
-    #   #    could make.
+    def load_dictionary(word_file_name = File.dirname(__FILE__) + '/../../assets/words.txt')
+      words = File.read(word_file_name).split("\n").map(&:downcase)
 
-    def find(letters, options = {})
-      @trie.find(letters)
+      words.each do |word|
+        self.<< word.chomp
+      end
+    end
+   
+    def <<(word)
+      node = word.each_char.inject(self) { |node, char| node.nodes[char] ||= Solver.new }
+      node.word = true
+    end
+   
+    def find(letters)
+      @all = []
+      @used = frequency_map(letters)
+      recursive_find self, ""
+      @all
+    end
+   
+    def recursive_find(root, word)
+      nodes.reject { |c, v| root.used[c] == 0 }.each { |char, node|
+        root.used[char] -= 1
+        node.recursive_find(root, word + char)
+        root.used[char] += 1
+      }
+   
+      root.all << word if self.word
+    end
+   
+    def frequency_map(letters)
+      letters.each_char.inject(Hash.new(0)) { |map, char| (map[char] += 1) && map }
     end
   end
 end
